@@ -2,3 +2,5 @@ fastapi
 uvicorn[standard]
 python-dotenv
 psycopg2-binary
+passlib>=1.7.4
+bcrypt>=3.2.0,<4.1.0
