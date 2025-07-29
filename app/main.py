@@ -6,6 +6,7 @@ from app.modules.user.Routes.api import router as users_router
 from app.modules.category.Routes.api import router as category_router
 from app.modules.auth.Routes.api import router as auth_router
 from app.modules.auth.Routes.protected_example import router as protected_router
+from app.modules.task.Routes.api import router as task_router
 from app.core.ExceptionValidator.index import validation_exception_handler, pydantic_validation_exception_handler
 
 app = FastAPI(
@@ -22,9 +23,10 @@ async def _validation_exception_handler(request, exc):
 async def _pydantic_validation_exception_handler(request, exc):
     return await pydantic_validation_exception_handler(request, exc)
 
+app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(category_router)
-app.include_router(auth_router)
+app.include_router(task_router)
 app.include_router(protected_router)
 
 @app.get("/")
