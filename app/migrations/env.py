@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 
 from app.config.database import Base
 from app.modules.user.Models.user import User
+from app.modules.category.Models.category import Category
 # Agrega aquí otros modelos:
 # from app.modules.task.Models.task import Task
 
