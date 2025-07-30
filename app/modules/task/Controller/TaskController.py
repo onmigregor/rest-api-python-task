@@ -68,4 +68,4 @@ class TaskController:
     @staticmethod
     def get_categories(db: Session):
         categories = TaskService.get_categories(db)
-        return {"message": "success", "data": [CategoryOut.from_orm(cat) for cat in categories]}
+        return {"message": "success", "data": [CategoryOut.model_validate(cat) for cat in categories]}

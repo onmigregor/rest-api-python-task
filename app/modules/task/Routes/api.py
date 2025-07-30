@@ -14,6 +14,14 @@ router = APIRouter(prefix="/api/v1/tasks", tags=["Task"])
 def get_tasks(page: int = 1, limit: int = 10, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
     return TaskController.get_all(page, limit, db)
 
+@router.get("/statistics", status_code=200)
+def get_statistics(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
+    return TaskController.statistics(db)
+
+@router.get("/categories", status_code=200)
+def get_categories(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
+    return TaskController.get_categories(db)
+
 @router.get("/{task_id}", status_code=200)
 def get_task(task_id: int, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
     return TaskController.get_by_id(task_id, db)
@@ -30,11 +38,3 @@ def update_task(task_id: int, task: TaskUpdateRequest, db: Session = Depends(get
 def delete_task(task_id: int, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin"]))):
     TaskController.delete(task_id, db)
     return None
-
-@router.get("/statistics", status_code=200)
-def get_statistics(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
-    return TaskController.statistics(db)
-
-@router.get("/categories", status_code=200)
-def get_categories(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
-    return TaskController.get_categories(db)
