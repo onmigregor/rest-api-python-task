@@ -32,10 +32,6 @@ cd rest-api-python-task
 # Crear entorno virtual
 python -m venv .venv
 
-# Activar entorno virtual
-# En Windows:
-.venv\Scripts\activate
-
 # En Linux/Mac:
 source .venv/bin/activate
 ```
