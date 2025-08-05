@@ -79,12 +79,8 @@ alembic -c app/migrations/alembic.ini current
 ### Ejecutar Seeders
 
 ```bash
-# Opción 1: Script dedicado (Recomendado)
-python run_seeder.py
-
-# Opción 2: Ejecutar directamente
-python app/migrations/seeders/seed_roles_and_admin.py
-```
+# Desde la raíz del proyecto
+python -m app.migrations.seeders.seed_roles_and_admin
 
 ### Usuarios Creados por el Seeder
 
@@ -109,20 +105,19 @@ alembic -c app/migrations/alembic.ini downgrade -1
 ### Comando Principal
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --port 8000
 ```
 
 ### Opciones del Comando
 
 - `--reload`: Recarga automática al detectar cambios
-- `--host 0.0.0.0`: Permite conexiones desde cualquier IP
 - `--port 8000`: Puerto donde se ejecutará la API
 
 ### Verificar que Funciona
 
-- **API**: http://localhost:8000
-- **Documentación Swagger**: http://localhost:8000/docs
-- **Documentación ReDoc**: http://localhost:8000/redoc
+- **API**: <http://localhost:8000>
+- **Documentación Swagger**: <http://localhost:8000/docs>
+- **Documentación ReDoc**: <http://localhost:8000/redoc>
 
 ## 📁 Estructura General del Proyecto
 
@@ -282,4 +277,4 @@ uvicorn app.main:app --reload --port 8001
 
 ¡Tu API Task Manager está lista para usar! 🎉
 
-Para más información, visita la documentación en: http://localhost:8000/docs
+Para más información, visita la documentación en: <http://localhost:8000/docs>
