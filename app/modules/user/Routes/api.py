@@ -9,6 +9,11 @@ from app.modules.user.Schemas.SchemasUser import UserCreate, UserUpdate
 
 router = get_module_router("users")
 
+@router.get("/roles", status_code=200)
+def get_available_roles(db: Session = Depends(get_db), user_id: int = Depends(role_required(["Admin"]))):
+    """Obtener todos los roles disponibles para asignar a usuarios"""
+    return UserController.get_available_roles(db)
+
 @router.get("/", status_code=200)
 def get_users(page: int = 1, limit: int = 10, db: Session = Depends(get_db), user_id: int = Depends(role_required(["Admin"]))):
     return UserController.get_users(page, limit, db)

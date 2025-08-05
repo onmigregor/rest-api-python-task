@@ -1,15 +1,24 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
-
-from pydantic import model_validator
+from sqlalchemy.orm import Session
+from app.modules.auth.Models.role import Role
 
 class UserCreateRequest(BaseModel):
     name: str = Field(..., min_length=3, max_length=100)
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=128)
     confirm_pass: str = Field(..., min_length=8, max_length=128)
+    role_id: int = Field(..., description="ID del rol a asignar al usuario")
 
-    @model_validator(mode="after")
+    @field_validator('role_id')
+    @classmethod
+    def validate_role_exists(cls, v):
+        # Esta validación se hará en el servicio para tener acceso a la DB
+        if not isinstance(v, int) or v <= 0:
+            raise ValueError('role_id debe ser un entero positivo')
+        return v
+
+    @field_validator(mode="after")
     def passwords_match(self):
         if self.password != self.confirm_pass:
             raise ValueError('Passwords do not match')
@@ -20,8 +29,16 @@ class UserUpdateRequest(BaseModel):
     email: Optional[EmailStr] = None
     password: Optional[str] = Field(None, min_length=8, max_length=128)
     confirm_pass: Optional[str] = Field(None, min_length=8, max_length=128)
+    role_id: Optional[int] = Field(None, description="ID del rol a asignar al usuario")
 
-    @model_validator(mode="after")
+    @field_validator('role_id')
+    @classmethod
+    def validate_role_exists(cls, v):
+        if v is not None and (not isinstance(v, int) or v <= 0):
+            raise ValueError('role_id debe ser un entero positivo')
+        return v
+
+    @field_validator(mode="after")
     def passwords_update_match(self):
         if (self.password or self.confirm_pass):
             if not self.password or not self.confirm_pass:
@@ -34,6 +51,8 @@ class UserOutResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
+    roles: list = []
+    
     class Config:
         from_attributes = True
 

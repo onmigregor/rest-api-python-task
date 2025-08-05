@@ -213,9 +213,11 @@ rest-api-python-task/
 
 ### Usuarios
 
-- `GET /users` - Listar usuarios
-- `GET /users/{id}` - Obtener usuario
-- `PUT /users/{id}` - Actualizar usuario
+- `GET /users/roles` - Obtener roles disponibles
+- `GET /users` - Listar usuarios (con roles)
+- `GET /users/{id}` - Obtener usuario (con roles)
+- `POST /users` - Crear usuario (requiere role_id)
+- `PUT /users/{id}` - Actualizar usuario (puede incluir role_id)
 - `DELETE /users/{id}` - Eliminar usuario
 
 ### Categorías

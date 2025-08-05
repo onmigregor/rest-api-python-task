@@ -2,8 +2,16 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.modules.user.Service.UserService import UserService
 from app.modules.user.Schemas.SchemasUser import UserCreate, UserUpdate
+from app.modules.auth.Models.role import Role
 
 class UserController:
+    @staticmethod
+    def get_available_roles(db: Session):
+        """Obtener todos los roles disponibles"""
+        roles = db.query(Role).all()
+        roles_data = [{"id": role.id, "name": role.name} for role in roles]
+        return {"message": "success", "data": roles_data}
+
     @staticmethod
     def get_users(page: int, limit: int, db: Session):
         service = UserService(db)
