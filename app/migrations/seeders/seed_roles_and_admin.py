@@ -5,9 +5,21 @@ from app.modules.auth.Models.user_role import UserRole
 from app.modules.user.Models.user import User
 from passlib.context import CryptContext
 import os
+from dotenv import load_dotenv
 
-# Configuración de conexión (ajusta si usas variables de entorno)
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:123456@localhost/taskmanager")
+# Cargar variables de entorno
+load_dotenv()
+
+# Configuración de conexión usando variables de entorno
+def get_database_url():
+    user = os.getenv("POSTGRES_USER", "postgres")
+    password = os.getenv("POSTGRES_PASSWORD", "123456")
+    host = os.getenv("POSTGRES_HOST", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5432")
+    database = os.getenv("POSTGRES_DB", "taskmanager")
+    return f"postgresql://{user}:{password}@{host}:{port}/{database}"
+
+DATABASE_URL = get_database_url()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
