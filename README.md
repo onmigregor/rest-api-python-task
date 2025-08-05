@@ -5,12 +5,14 @@ API REST modular para gestión de tareas desarrollada con FastAPI, PostgreSQL y 
 ## 📋 Requerimientos para Instalación Local
 
 ### Software Necesario
+
 - **Python 3.8+** - Lenguaje de programación
 - **PostgreSQL 12+** - Base de datos
 - **Git** - Control de versiones
 - **pip** - Gestor de paquetes de Python
 
 ### Herramientas Recomendadas
+
 - **Visual Studio Code** - Editor de código
 - **Postman/Insomnia** - Para probar la API
 - **pgAdmin** - Administrador de PostgreSQL
@@ -18,12 +20,14 @@ API REST modular para gestión de tareas desarrollada con FastAPI, PostgreSQL y 
 ## 🚀 Pasos para Levantar el Proyecto
 
 ### 1. Clonar el Repositorio
+
 ```bash
 git clone <url-del-repositorio>
 cd rest-api-python-task
 ```
 
 ### 2. Crear y Activar Entorno Virtual
+
 ```bash
 # Crear entorno virtual
 python -m venv .venv
@@ -37,11 +41,13 @@ source .venv/bin/activate
 ```
 
 ### 3. Instalar Dependencias
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4. Configurar Variables de Entorno
+
 ```bash
 # Copiar archivo de ejemplo
 cp .env.example .env
@@ -56,6 +62,7 @@ cp .env.example .env
 ```
 
 ### 5. Crear Base de Datos
+
 ```sql
 -- Conectarse a PostgreSQL y ejecutar:
 CREATE DATABASE taskmanager;
@@ -64,6 +71,7 @@ CREATE DATABASE taskmanager;
 ## 🗄️ Configuración de Migraciones y Seeders
 
 ### Aplicar Migraciones
+
 ```bash
 # Ejecutar todas las migraciones
 alembic -c app/migrations/alembic.ini upgrade head
@@ -73,6 +81,7 @@ alembic -c app/migrations/alembic.ini current
 ```
 
 ### Ejecutar Seeders
+
 ```bash
 # Opción 1: Script dedicado (Recomendado)
 python run_seeder.py
@@ -82,10 +91,12 @@ python app/migrations/seeders/seed_roles_and_admin.py
 ```
 
 ### Usuarios Creados por el Seeder
+
 - **Admin**: `admin@mail.com` | Contraseña: `12345678`
 - **Usuario**: `user@mail.com` | Contraseña: `123456`
 
 ### Comandos Útiles de Migraciones
+
 ```bash
 # Ver historial de migraciones
 alembic -c app/migrations/alembic.ini history
@@ -100,16 +111,19 @@ alembic -c app/migrations/alembic.ini downgrade -1
 ## 🏃‍♂️ Comando para Levantar Proyecto en Desarrollo
 
 ### Comando Principal
+
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Opciones del Comando
+
 - `--reload`: Recarga automática al detectar cambios
 - `--host 0.0.0.0`: Permite conexiones desde cualquier IP
 - `--port 8000`: Puerto donde se ejecutará la API
 
 ### Verificar que Funciona
+
 - **API**: http://localhost:8000
 - **Documentación Swagger**: http://localhost:8000/docs
 - **Documentación ReDoc**: http://localhost:8000/redoc
@@ -186,11 +200,13 @@ rest-api-python-task/
 ## 🔧 Arquitectura del Proyecto
 
 ### Patrón de Diseño
+
 - **Arquitectura Modular**: Cada funcionalidad en su propio módulo
 - **Separación de Responsabilidades**: Controller → Service → Model
 - **Inyección de Dependencias**: Para base de datos y autenticación
 
 ### Módulos Principales
+
 - **Auth**: Autenticación JWT, roles y permisos
 - **User**: Gestión de usuarios y perfiles
 - **Category**: Categorización de tareas
@@ -199,23 +215,27 @@ rest-api-python-task/
 ## 🛣️ Endpoints Principales
 
 ### Autenticación
+
 - `POST /auth/login` - Iniciar sesión
 - `POST /auth/register` - Registrar usuario
 - `POST /auth/logout` - Cerrar sesión
 
 ### Usuarios
+
 - `GET /users` - Listar usuarios
 - `GET /users/{id}` - Obtener usuario
 - `PUT /users/{id}` - Actualizar usuario
 - `DELETE /users/{id}` - Eliminar usuario
 
 ### Categorías
+
 - `GET /categories` - Listar categorías
 - `POST /categories` - Crear categoría
 - `PUT /categories/{id}` - Actualizar categoría
 - `DELETE /categories/{id}` - Eliminar categoría
 
 ### Tareas
+
 - `GET /tasks` - Listar tareas
 - `POST /tasks` - Crear tarea
 - `GET /tasks/{id}` - Obtener tarea
@@ -225,6 +245,7 @@ rest-api-python-task/
 ## 🚨 Solución de Problemas
 
 ### Error de Conexión a PostgreSQL
+
 ```bash
 # Verificar que PostgreSQL esté ejecutándose
 # Comprobar credenciales en .env
@@ -232,6 +253,7 @@ rest-api-python-task/
 ```
 
 ### Error de Migraciones
+
 ```bash
 # Resetear migraciones (¡CUIDADO!)
 alembic -c app/migrations/alembic.ini stamp base
@@ -239,6 +261,7 @@ alembic -c app/migrations/alembic.ini upgrade head
 ```
 
 ### Puerto 8000 Ocupado
+
 ```bash
 # Usar puerto diferente
 uvicorn app.main:app --reload --port 8001
