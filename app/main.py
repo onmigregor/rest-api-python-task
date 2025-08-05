@@ -9,10 +9,27 @@ from app.modules.auth.Routes.protected_example import router as protected_router
 from app.modules.task.Routes.api import router as task_router
 from app.core.ExceptionValidator.index import validation_exception_handler, pydantic_validation_exception_handler
 
+from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app = FastAPI(
     title="Task Manager API",
     description="API modular para gestión de tareas",
     version="0.1.0"
+)
+
+# Configuración CORS
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+origins = [frontend_url]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 @app.exception_handler(RequestValidationError)
