@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from datetime import datetime, date
 from app.config.database import get_db
 from app.modules.task.Controller.TaskController import TaskController
 from app.modules.task.Requests.TaskRequest import TaskCreateRequest, TaskUpdateRequest
@@ -15,8 +16,13 @@ def get_tasks(page: int = 1, limit: int = 10, db: Session = Depends(get_db), use
     return TaskController.get_all(page, limit, db)
 
 @router.get("/statistics", status_code=200)
-def get_statistics(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
-    return TaskController.statistics(db)
+def get_statistics(
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    db: Session = Depends(get_db),
+    user_id_token: int = Depends(role_required(["Admin", "User"]))
+):
+    return TaskController.statistics(db, start_date, end_date)
 
 @router.get("/categories", status_code=200)
 def get_categories(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):

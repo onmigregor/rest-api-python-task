@@ -114,10 +114,41 @@ class TaskService:
         db.commit()
 
     @staticmethod
-    def statistics(db: Session):
-        total = db.query(Task).count()
-        completed = db.query(Task).filter(Task.completed == True).count()
-        pending = db.query(Task).filter(Task.completed == False).count()
+    def statistics(db: Session, start_date=None, end_date=None):
+        # Base query
+        base_query = db.query(Task)
+        
+        # Verificar si ambos parámetros están presentes y son iguales (mismo día)
+        if start_date and end_date and start_date == end_date:
+            # Caso especial: filtrar por un día específico
+            from datetime import datetime, timedelta
+            day_start = datetime.combine(start_date, datetime.min.time())
+            day_end = datetime.combine(end_date, datetime.min.time()) + timedelta(days=1, seconds=-1)
+            # Aplicar filtro para un día específico
+            base_query = base_query.filter(Task.created_at >= day_start)
+            base_query = base_query.filter(Task.created_at <= day_end)
+        else:
+            # Caso normal: filtrar por rango de fechas
+            if start_date:
+                # Para start_date, usamos la fecha a las 00:00:00 horas
+                from datetime import datetime
+                start_datetime = datetime.combine(start_date, datetime.min.time())
+                print(f"DEBUG - Filtro start_datetime: {start_datetime}")
+                base_query = base_query.filter(Task.created_at >= start_datetime)
+            
+            if end_date:
+                # Para end_date, usamos la fecha a las 23:59:59 horas
+                from datetime import datetime, timedelta
+                # Añadimos un día y restamos 1 segundo para obtener el final del día
+                end_datetime = datetime.combine(end_date, datetime.min.time()) + timedelta(days=1, seconds=-1)
+                print(f"DEBUG - Filtro end_datetime: {end_datetime}")
+                base_query = base_query.filter(Task.created_at <= end_datetime)
+
+        # Contar totales con los filtros aplicados
+        total = base_query.count()
+        completed = base_query.filter(Task.completed == True).count()
+        pending = base_query.filter(Task.completed == False).count()
+        
         return {"total": total, "completed": completed, "pending": pending}
 
     @staticmethod

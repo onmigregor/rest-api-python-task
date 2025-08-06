@@ -60,8 +60,15 @@ class TaskController:
         return {"message": "success", "data": None}
 
     @staticmethod
-    def statistics(db: Session):
-        stats = TaskService.statistics(db)
+    def statistics(db: Session, start_date = None, end_date = None):
+        # Validar fechas antes de pasar al servicio
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="start_date cannot be greater than end_date"
+            )
+        
+        stats = TaskService.statistics(db, start_date, end_date)
         return {"message": "success", "data": TaskStatisticsOut(**stats)}
 
     @staticmethod

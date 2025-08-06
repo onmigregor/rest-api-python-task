@@ -265,10 +265,40 @@ GET /users/all
 ### Tareas
 
 - `GET /tasks` - Listar tareas paginadas (con page y limit)
+- `GET /tasks/statistics` - Obtener estadísticas de tareas (con filtros opcionales de fecha)
 - `POST /tasks` - Crear tarea
 - `GET /tasks/{id}` - Obtener tarea
 - `PUT /tasks/{id}` - Actualizar tarea
 - `DELETE /tasks/{id}` - Eliminar tarea
+
+#### Estadísticas de Tareas
+
+```
+GET /tasks/statistics?start_date=2023-06-01&end_date=2023-06-30
+```
+
+Parámetros opcionales:
+- `start_date`: Fecha inicial para filtrar tareas (formato YYYY-MM-DD)
+- `end_date`: Fecha final para filtrar tareas (formato YYYY-MM-DD)
+
+Casos de uso:
+- Si ambos parámetros están presentes, filtra tareas creadas entre esas fechas
+- Si solo `start_date` está presente, filtra tareas desde esa fecha hasta hoy
+- Si solo `end_date` está presente, filtra tareas creadas hasta esa fecha
+- Si ninguno está presente, devuelve estadísticas de todas las tareas
+
+Respuesta:
+
+```json
+{
+  "message": "success",
+  "data": {
+    "total": 25,
+    "completed": 10,
+    "pending": 15
+  }
+}
+```
 
 ## 👥 Sistema de Roles y Permisos
 
