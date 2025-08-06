@@ -12,32 +12,47 @@ from app.modules.auth.Dependencies.role_required import role_required
 router = APIRouter(prefix="/api/v1/tasks", tags=["Task"])
 
 @router.get("/", status_code=200)
-def get_tasks(page: int = 1, limit: int = 10, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
-    return TaskController.get_all(page, limit, db)
+def get_tasks(
+    page: int = 1, 
+    limit: int = 10, 
+    query: str = None,
+    db: Session = Depends(get_db), 
+    user_id: int = Depends(role_required(["Admin", "Single user"]))
+):
+    from app.helpers.auth_utils import is_admin
+    
+    return TaskController.get_all(
+        page=page,
+        limit=limit,
+        db=db,
+        current_user_id=user_id,
+        is_admin=is_admin(user_id, db),
+        query=query
+    )
 
 @router.get("/statistics", status_code=200)
 def get_statistics(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     db: Session = Depends(get_db),
-    user_id_token: int = Depends(role_required(["Admin", "User"]))
+    user_id_token: int = Depends(role_required(["Admin", "Single user"]))
 ):
     return TaskController.statistics(db, start_date, end_date)
 
 @router.get("/categories", status_code=200)
-def get_categories(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
+def get_categories(db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "Single user"]))):
     return TaskController.get_categories(db)
 
 @router.get("/{task_id}", status_code=200)
-def get_task(task_id: int, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
+def get_task(task_id: int, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "Single user"]))):
     return TaskController.get_by_id(task_id, db)
 
 @router.post("/", status_code=201)
-def create_task(task: TaskCreateRequest, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
+def create_task(task: TaskCreateRequest, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "Single user"]))):
     return TaskController.create(task, db, user_id_token)
 
 @router.put("/{task_id}", status_code=200)
-def update_task(task_id: int, task: TaskUpdateRequest, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "User"]))):
+def update_task(task_id: int, task: TaskUpdateRequest, db: Session = Depends(get_db), user_id_token: int = Depends(role_required(["Admin", "Single user"]))):
     return TaskController.update(task_id, task, db, user_id_token)
 
 @router.delete("/{task_id}", status_code=204)

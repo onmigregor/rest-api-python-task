@@ -14,8 +14,22 @@ class TaskController:
         return d
 
     @staticmethod
-    def get_all(page: int, limit: int, db: Session):
-        paginated_data = TaskService.get_all(db, page=page, limit=limit)
+    def get_all(
+        page: int, 
+        limit: int, 
+        db: Session, 
+        current_user_id: int,
+        is_admin: bool,
+        query: str = None
+    ):
+        paginated_data = TaskService.get_all(
+            db=db,
+            page=page,
+            limit=limit,
+            current_user_id=current_user_id,
+            is_admin=is_admin,
+            query=query
+        )
         return {"message": "success", "data": paginated_data}
 
     @staticmethod

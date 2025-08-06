@@ -5,28 +5,56 @@ from app.modules.user.Models.user import User
 from app.modules.task.Requests.TaskRequest import TaskCreateRequest, TaskUpdateRequest
 from fastapi import HTTPException, status
 from typing import List
+from sqlalchemy import or_
+from app.helpers.auth_utils import is_admin
 
 class TaskService:
     @staticmethod
-    def get_all(db: Session, page: int = 1, limit: int = 10):
+    def get_all(
+        db: Session, 
+        page: int = 1, 
+        limit: int = 10, 
+        current_user_id: int = None,
+        is_admin: bool = False,
+        query: str = None
+    ):
         from sqlalchemy.orm import joinedload
         from app.modules.task.Resource.TaskResource import TaskResource
         
         # Construir query base con joins
-        query = db.query(Task).options(
+        base_query = db.query(Task).options(
             joinedload(Task.category),
             joinedload(Task.creator),
             joinedload(Task.assignee)
         )
         
+        # Aplicar filtro por usuario si no es admin
+        if not is_admin:
+            base_query = base_query.filter(
+                or_(
+                    Task.created_by == current_user_id,
+                    Task.assigned_to == current_user_id
+                )
+            )
+        
+        # Aplicar filtro de búsqueda
+        if query:
+            search = f"%{query}%"
+            base_query = base_query.filter(
+                or_(
+                    Task.title.ilike(search),
+                    Task.description.ilike(search)
+                )
+            )
+        
         # Calcular paginación
-        total_items = query.count()
+        total_items = base_query.count()
         total_pages = (total_items + limit - 1) // limit
         
-        # Obtener tasks paginados
-        tasks = query.offset((page - 1) * limit).limit(limit).all()
+        # Aplicar paginación
+        tasks = base_query.offset((page - 1) * limit).limit(limit).all()
         
-        # Serializar tasks
+        # Serializar resultados
         serialized_tasks = [TaskResource.serialize(task) for task in tasks]
         
         return {
