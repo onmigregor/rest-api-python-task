@@ -13,6 +13,13 @@ class UserController:
         return {"message": "success", "data": roles_data}
 
     @staticmethod
+    def get_all_users(db: Session):
+        """Obtener todos los usuarios del sistema"""
+        service = UserService(db)
+        users_data = service.get_all_users()
+        return {"message": "success", "data": users_data}
+
+    @staticmethod
     def get_users(page: int, limit: int, db: Session):
         service = UserService(db)
         data = service.get_users(page=page, limit=limit)

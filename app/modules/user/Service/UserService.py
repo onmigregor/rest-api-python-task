@@ -43,6 +43,19 @@ class UserService:
         }
         return UserOut(**user_dict)
 
+    def get_all_users(self):
+        """Obtiene todos los usuarios del sistema sin paginación"""
+        users = self.db.query(User).filter(User.delete_at == None).all()
+        
+        # Obtener usuarios con sus roles
+        users_with_roles = []
+        for user in users:
+            user_with_roles = self._get_user_with_roles(user.id)
+            if user_with_roles:
+                users_with_roles.append(user_with_roles.model_dump())
+        
+        return users_with_roles
+
     def get_users(self, page: int = 1, limit: int = 10):
         query = self.db.query(User).filter(User.delete_at == None)
         total_items = query.count()

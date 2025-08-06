@@ -8,17 +8,34 @@ from typing import List
 
 class TaskService:
     @staticmethod
-    def get_all(db: Session, skip: int = 0, limit: int = 10) -> List[Task]:
+    def get_all(db: Session, page: int = 1, limit: int = 10):
         from sqlalchemy.orm import joinedload
-        return db.query(Task)\
-            .options(
-                joinedload(Task.category),
-                joinedload(Task.creator),
-                joinedload(Task.assignee)
-            )\
-            .offset(skip)\
-            .limit(limit)\
-            .all()
+        from app.modules.task.Resource.TaskResource import TaskResource
+        
+        # Construir query base con joins
+        query = db.query(Task).options(
+            joinedload(Task.category),
+            joinedload(Task.creator),
+            joinedload(Task.assignee)
+        )
+        
+        # Calcular paginación
+        total_items = query.count()
+        total_pages = (total_items + limit - 1) // limit
+        
+        # Obtener tasks paginados
+        tasks = query.offset((page - 1) * limit).limit(limit).all()
+        
+        # Serializar tasks
+        serialized_tasks = [TaskResource.serialize(task) for task in tasks]
+        
+        return {
+            "page": page,
+            "per_page": limit,
+            "total_pages": total_pages,
+            "total_items": total_items,
+            "tasks": serialized_tasks
+        }
 
     @staticmethod
     def get_by_id(db: Session, task_id: int) -> Task:

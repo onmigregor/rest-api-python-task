@@ -14,6 +14,11 @@ def get_available_roles(db: Session = Depends(get_db), user_id: int = Depends(ro
     """Obtener todos los roles disponibles para asignar a usuarios"""
     return UserController.get_available_roles(db)
 
+@router.get("/all", status_code=200)
+def get_all_users(db: Session = Depends(get_db), user_id: int = Depends(role_required(["Admin"]))):
+    """Obtener todos los usuarios del sistema"""
+    return UserController.get_all_users(db)
+
 @router.get("/", status_code=200)
 def get_users(page: int = 1, limit: int = 10, db: Session = Depends(get_db), user_id: int = Depends(role_required(["Admin"]))):
     return UserController.get_users(page, limit, db)

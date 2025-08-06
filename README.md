@@ -214,7 +214,42 @@ rest-api-python-task/
 ### Usuarios
 
 - `GET /users/roles` - Obtener roles disponibles
-- `GET /users` - Listar usuarios (con roles)
+
+```json
+GET /users/roles
+{
+  "message": "success",
+  "data": [
+    {"id": 1, "name": "Admin"},
+    {"id": 2, "name": "Single user"}
+  ]
+}
+```
+
+- `GET /users/all` - Obtener todos los usuarios del sistema
+
+```json
+GET /users/all
+{
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@mail.com",
+      "roles": [{"id": 1, "name": "Admin"}]
+    },
+    {
+      "id": 2,
+      "name": "Juan Pérez",
+      "email": "juan@example.com",
+      "roles": [{"id": 2, "name": "Single user"}]
+    }
+  ]
+}
+```
+
+- `GET /users` - Listar usuarios paginados (con roles)
 - `GET /users/{id}` - Obtener usuario (con roles)
 - `POST /users` - Crear usuario (requiere role_id)
 - `PUT /users/{id}` - Actualizar usuario (puede incluir role_id)
@@ -229,11 +264,152 @@ rest-api-python-task/
 
 ### Tareas
 
-- `GET /tasks` - Listar tareas
+- `GET /tasks` - Listar tareas paginadas (con page y limit)
 - `POST /tasks` - Crear tarea
 - `GET /tasks/{id}` - Obtener tarea
 - `PUT /tasks/{id}` - Actualizar tarea
 - `DELETE /tasks/{id}` - Eliminar tarea
+
+## 👥 Sistema de Roles y Permisos
+
+### Roles Disponibles
+
+El sistema incluye los siguientes roles predefinidos:
+
+- **Admin**: Acceso completo a todas las funcionalidades
+- **Single user**: Acceso limitado a funcionalidades básicas
+
+### Gestión de Roles
+
+#### Crear Usuario con Rol
+
+```json
+POST /users
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "password": "password123",
+  "confirm_pass": "password123",
+  "role_id": 1
+}
+```
+
+#### Obtener Roles Disponibles
+
+```json
+GET /users/roles
+{
+  "message": "success",
+  "data": [
+    {"id": 1, "name": "Admin"},
+    {"id": 2, "name": "Single user"}
+  ]
+}
+```
+
+#### Obtener Todos los Usuarios
+
+```json
+GET /users/all
+{
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@mail.com",
+      "roles": [{"id": 1, "name": "Admin"}]
+    },
+    {
+      "id": 2,
+      "name": "Juan Pérez",
+      "email": "juan@example.com",
+      "roles": [{"id": 2, "name": "Single user"}]
+    }
+  ]
+}
+```
+
+#### Respuesta de Usuario con Roles
+
+```json
+{
+  "id": 1,
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "roles": [
+    {"id": 1, "name": "Admin"}
+  ]
+}
+```
+
+#### Actualizar Rol de Usuario
+
+```json
+PUT /users/{id}
+{
+  "role_id": 2
+}
+```
+
+#### Ejemplo de Respuesta Paginada de Tareas
+
+```json
+GET /tasks?page=1&limit=10
+{
+  "message": "success",
+  "data": {
+    "page": 1,
+    "per_page": 10,
+    "total_pages": 3,
+    "total_items": 25,
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Implementar API de usuarios",
+        "description": "Crear endpoints CRUD para usuarios",
+        "completed": false,
+        "due_date": "2024-01-15T10:00:00",
+        "priority": "high",
+        "category": {
+          "id": 1,
+          "name": "Desarrollo"
+        },
+        "created_by": {
+          "id": 1,
+          "name": "Admin"
+        },
+        "assigned_to": {
+          "id": 2,
+          "name": "Juan Pérez"
+        },
+        "created_at": "2024-01-01T08:00:00",
+        "updated_at": "2024-01-01T08:00:00"
+      }
+    ]
+  }
+}
+```
+
+### Validaciones de Roles
+
+- ✅ **Validación de existencia**: El `role_id` debe existir en la base de datos
+- ✅ **Validación de formato**: El `role_id` debe ser un entero positivo
+- ✅ **Seguridad**: Solo usuarios Admin pueden gestionar roles
+- ✅ **Integridad**: Relación many-to-many entre usuarios y roles
+
+### Estructura de Base de Datos
+
+```sql
+-- Tabla de roles
+roles (id, name)
+
+-- Tabla de usuarios
+users (id, name, email, password, created_at, updated_at, delete_at)
+
+-- Tabla de relación usuario-rol
+user_roles (user_id, role_id)
+```
 
 ## 🚨 Solución de Problemas
 
@@ -274,6 +450,10 @@ uvicorn app.main:app --reload --port 8001
 - **CORS**: Configurado para frontend en puerto 3000
 - **Validación**: Pydantic para validación de datos
 - **Documentación**: Swagger UI automática en `/docs`
+- **Roles**: Sistema de roles implementado con validación automática
+- **Permisos**: Control de acceso basado en roles (RBAC)
+- **Base de Datos**: Relaciones many-to-many entre usuarios y roles
+- **Endpoints**: `/users/all` para obtener todos los usuarios sin paginación
 
 ---
 

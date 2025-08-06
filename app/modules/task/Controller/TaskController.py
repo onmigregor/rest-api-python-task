@@ -15,9 +15,8 @@ class TaskController:
 
     @staticmethod
     def get_all(page: int, limit: int, db: Session):
-        skip = (page - 1) * limit
-        tasks = TaskService.get_all(db, skip=skip, limit=limit)
-        return {"message": "success", "data": [TaskResource.serialize(task) for task in tasks]}
+        paginated_data = TaskService.get_all(db, page=page, limit=limit)
+        return {"message": "success", "data": paginated_data}
 
     @staticmethod
     def get_by_id(task_id: int, db: Session):
