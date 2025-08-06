@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Optional
-from datetime import datetime
+from pydantic import BaseModel, Field, field_validator, ValidationError, model_validator
+from typing import Optional, Union
+from datetime import datetime, date
 from enum import Enum
 
 class PriorityEnum(str, Enum):
@@ -49,3 +49,25 @@ class TaskUpdateRequest(BaseModel):
         except Exception:
             raise ValueError("due_date have to have format yyyy/mm/dd")
         return v
+
+
+class TaskStatisticsRequest(BaseModel):
+    start_date: Optional[date] = Field(
+        None, 
+        description="Fecha de inicio para filtrar estadísticas (YYYY-MM-DD)"
+    )
+    end_date: Optional[date] = Field(
+        None, 
+        description="Fecha de fin para filtrar estadísticas (YYYY-MM-DD)"
+    )
+    user_id: Optional[int] = Field(
+        None, 
+        gt=0, 
+        description="ID de usuario para filtrar tareas asignadas"
+    )
+
+    @model_validator(mode='after')
+    def validate_dates(self):
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValueError("start_date cannot be greater than end_date")
+        return self

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.modules.task.Service.TaskService import TaskService
 from app.modules.task.Requests.TaskRequest import TaskCreateRequest, TaskUpdateRequest
 from app.modules.task.Schemas.TaskSchemas import TaskStatisticsOut, CategoryOut
+from app.modules.task.Requests.TaskRequest import TaskStatisticsRequest
 from app.modules.task.Resource.TaskResource import TaskResource
 from typing import List
 
@@ -74,16 +75,24 @@ class TaskController:
         return {"message": "success", "data": None}
 
     @staticmethod
-    def statistics(db: Session, start_date = None, end_date = None):
-        # Validar fechas antes de pasar al servicio
-        if start_date and end_date and start_date > end_date:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="start_date cannot be greater than end_date"
+    def statistics(db: Session, params: TaskStatisticsRequest):
+        try:
+            stats = TaskService.statistics(
+                db=db,
+                start_date=params.start_date,
+                end_date=params.end_date,
+                user_id=params.user_id
             )
-        
-        stats = TaskService.statistics(db, start_date, end_date)
-        return {"message": "success", "data": TaskStatisticsOut(**stats)}
+            return {"message": "success", "data": TaskStatisticsOut(**stats)}
+        except HTTPException as e:
+            # Re-lanzar las excepciones HTTP
+            raise e
+        except Exception as e:
+            # Capturar cualquier otro error inesperado
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"An error occurred while retrieving statistics: {str(e)}"
+            )
 
     @staticmethod
     def get_categories(db: Session):
