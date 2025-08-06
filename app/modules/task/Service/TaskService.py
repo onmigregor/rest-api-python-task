@@ -1,12 +1,14 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
 from app.modules.task.Models.task import Task, PriorityEnum
 from app.modules.category.Models.category import Category
 from app.modules.user.Models.user import User
 from app.modules.task.Requests.TaskRequest import TaskCreateRequest, TaskUpdateRequest
-from fastapi import HTTPException, status
+from app.modules.task.DataTransferData.TaskData import TaskDTO
+from app.helpers.auth_utils import is_admin
 from typing import List
 from sqlalchemy import or_
-from app.helpers.auth_utils import is_admin
 
 class TaskService:
     @staticmethod
@@ -81,29 +83,27 @@ class TaskService:
 
     @staticmethod
     def create(db: Session, task_data: TaskCreateRequest, user_id: int) -> Task:
-        # Validar existencia de category y assigned_to
-        category = db.query(Category).filter(Category.id == task_data.category_id).first()
-        if not category:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category does not exist")
-        if task_data.assigned_to:
-            assigned_user = db.query(User).filter(User.id == task_data.assigned_to).first()
-            if not assigned_user:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"field": "assigned_to", "msg": "Assigned user does not exist"})
-            if task_data.assigned_to == user_id:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"field": "assigned_to", "msg": "The creator cannot assign the task to themselves"})
-        # Validar que due_date no sea pasada
-        from datetime import datetime
+        # Validar fecha de vencimiento
         if task_data.due_date and task_data.due_date < datetime.now():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"field": "due_date", "msg": "Due date cannot be in the past"})
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"field": "due_date", "msg": "Due date cannot be in the past"}
+            )
+            
+        # Preparar datos usando DTO
+        task_data = TaskDTO(task_data, user_id, db).prepare_for_create()
+        
+        # Crear la tarea
         task = Task(
             title=task_data.title,
             description=task_data.description,
             due_date=task_data.due_date,
             priority=task_data.priority,
             category_id=task_data.category_id,
-            created_by=user_id,
-            assigned_to=task_data.assigned_to
+            assigned_to=task_data.assigned_to,
+            created_by=user_id
         )
+        
         db.add(task)
         db.commit()
         db.refresh(task)
@@ -114,21 +114,17 @@ class TaskService:
         task = db.query(Task).filter(Task.id == task_id).first()
         if not task:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-
-        # Validar existencia de category_id si se va a actualizar
-        if task_data.category_id is not None:
-            category = db.query(Category).filter(Category.id == task_data.category_id).first()
-            if not category:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"field": "category_id", "msg": "Category does not exist"})
-
-        # Validar existencia de assigned_to si se va a actualizar
-        if task_data.assigned_to is not None:
-            assigned_user = db.query(User).filter(User.id == task_data.assigned_to).first()
-            if not assigned_user:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"field": "assigned_to", "msg": "Assigned user does not exist"})
-
-        for field, value in task_data.dict(exclude_unset=True).items():
-            setattr(task, field, value)
+            
+        # Preparar datos usando DTO
+        task_data = TaskDTO(task_data, user_id_token, db).prepare_for_update()
+        
+        # Actualizar campos
+        field_names = ['title', 'description', 'due_date', 'priority', 'category_id', 'assigned_to', 'completed']
+        for field in field_names:
+            value = getattr(task_data, field, None)
+            if value is not None:
+                setattr(task, field, value)
+        
         db.commit()
         db.refresh(task)
         return task
