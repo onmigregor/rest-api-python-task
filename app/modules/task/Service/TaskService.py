@@ -1,13 +1,10 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.modules.task.Models.task import Task, PriorityEnum
+from app.modules.task.Models.task import Task
 from app.modules.category.Models.category import Category
-from app.modules.user.Models.user import User
 from app.modules.task.Requests.TaskRequest import TaskCreateRequest, TaskUpdateRequest
 from app.modules.task.DataTransferData.TaskData import TaskDTO
-from app.helpers.auth_utils import is_admin
-from typing import List
 from sqlalchemy import or_
 
 class TaskService:

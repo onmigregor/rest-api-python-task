@@ -1,12 +1,10 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import List, Optional
-from datetime import datetime, date
+from typing import Optional
+from datetime import date
 from app.config.database import get_db
 from app.modules.task.Controller.TaskController import TaskController
 from app.modules.task.Requests.TaskRequest import TaskCreateRequest, TaskUpdateRequest, TaskStatisticsRequest
-from app.modules.task.Schemas.TaskSchemas import TaskOut, TaskStatisticsOut, CategoryOut
-from app.modules.auth.Dependencies.auth_jwt import get_current_user
 from app.modules.auth.Dependencies.role_required import role_required
 
 router = APIRouter(prefix="/api/v1/tasks", tags=["Task"])
